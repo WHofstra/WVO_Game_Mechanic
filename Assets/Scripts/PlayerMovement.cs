@@ -8,13 +8,14 @@ public class PlayerMovement : MonoBehaviour
     const float JUMPING_HEIGHT = 15.0f;
 
     [SerializeField]
-    private Vector3 _begingPosition;
+    private Vector3 _beginPosition;
 
     private Rigidbody2D rb;
 
     private float hor;
     private float ver;
     private int jumpTimer;
+    private int jumps;
 
     private bool[] jumping = new bool[2];
     private bool[] touchingWall = new bool[2];
@@ -27,13 +28,15 @@ public class PlayerMovement : MonoBehaviour
 
     private void ResetPlayer()
     {
-        transform.position = _begingPosition;
+        transform.position = _beginPosition;
 
         jumping[0] = false;
         jumping[1] = false;
         touchingWall[0] = false;
         touchingWall[1] = false;
+
         jumpTimer = 0;
+        jumps = 2;
     }
 
     private void Update()
@@ -47,21 +50,24 @@ public class PlayerMovement : MonoBehaviour
 
     private void FixedUpdate()
     {
-        WallVelocity(jumping[1]);
+        WallVelocity(jumping[1], jumping[0]);
     }
 
     private void KeyInputsVelocity()
     {
-        if ((Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.W)) && !jumping[0])
+        //Jump-key
+        if ((Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.W)) && (jumps > 0))
         {
-            jumping[1] = true;
             rb.velocity += new Vector2(0.0f, JUMPING_HEIGHT);
+            jumps--;
+            jumping[1] = true;
             jumping[0] = true;
         }
     }
 
     private void CheckJumpTime(bool jumpTime, float secs)
     {
+        //Check a Certain Amount of Seconds before the Player Could Jump Again
         if (jumpTime)
         {
             jumpTimer++;
@@ -75,23 +81,41 @@ public class PlayerMovement : MonoBehaviour
         {
             jumpTimer = 0;
         }
+
+        //Double Jumping is Fully Functional Once the Player Lands on the Ground
+        if (!jumping[0])
+        {
+            jumps = 2;
+        }
     }
 
-    private void WallVelocity(bool jumpTime)
+    private void WallVelocity(bool jumpTime, bool jumping)
     {
-        if (!jumpTime && !touchingWall[0] && !touchingWall[1])
+        //Checking Collisions with Walls
+        if (!jumping && !touchingWall[0] && !touchingWall[1])
+        {
+            rb.velocity = new Vector2(hor * SPEED, ver * SPEED + rb.velocity.y);
+
+            //Amplifying Breaking Distance
+            if (hor > -0.1f && hor < 0.1f && hor != 0)
+            {
+                rb.AddForce(new Vector2(hor * SPEED * 200.0f, 0.0f));
+            }
+        }
+        else if (!jumpTime && !touchingWall[0] && !touchingWall[1])
         {
             rb.velocity = new Vector2(hor * SPEED, ver * SPEED + rb.velocity.y);
         }
         else if (jumpTime && !touchingWall[0] && !touchingWall[1])
         {
-            rb.velocity = new Vector2(hor * SPEED, rb.velocity.y);
+            rb.velocity = new Vector2(hor * SPEED, (rb.velocity.y * 0.985f));
         }
         else
         {
             touchingWall[0] = false;
             touchingWall[1] = false;
 
+            //If the Right-side of a Wall is Touched
             if (touchingWall[0] && !touchingWall[1])
             {
                 if (hor > 0)
@@ -100,13 +124,14 @@ public class PlayerMovement : MonoBehaviour
                 }
                 else if (hor < 0)
                 {
-                    rb.velocity = new Vector2(0.0f, ver) * SPEED - new Vector2(0.0f, rb.gravityScale / 5);
+                    rb.velocity = new Vector2(0.0f, ver) * SPEED - new Vector2(0.0f, rb.gravityScale / 10);
                 }
                 else
                 {
                     rb.velocity = new Vector2(0.0f, ver) * SPEED - new Vector2(0.0f, rb.gravityScale);
                 }
             }
+            //If the Left-side of a Wall is Touched
             else if (!touchingWall[0] && touchingWall[1])
             {
                 if (hor < 0)
@@ -115,7 +140,7 @@ public class PlayerMovement : MonoBehaviour
                 }
                 else if (hor > 0)
                 {
-                    rb.velocity = new Vector2(0.0f, ver) * SPEED - new Vector2(0.0f, rb.gravityScale / 5);
+                    rb.velocity = new Vector2(0.0f, ver) * SPEED - new Vector2(0.0f, rb.gravityScale / 10);
                 }
                 else
                 {
@@ -140,11 +165,13 @@ public class PlayerMovement : MonoBehaviour
         {
             if (col.gameObject.transform.position.x < transform.position.x)
             {
+                //The Right-side of a Wall is Touched
                 touchingWall[0] = true;
                 touchingWall[1] = false;
             }
             else if (col.gameObject.transform.position.x > transform.position.x)
             {
+                //The Left-side of a Wall is Touched
                 touchingWall[1] = true;
                 touchingWall[0] = false;
             }
@@ -155,6 +182,7 @@ public class PlayerMovement : MonoBehaviour
     {
         if ((col.gameObject.layer == 8) && (col.gameObject.CompareTag("WallTile")))
         {
+            //No Wall is Touched
             touchingWall[0] = false;
             touchingWall[1] = false;
         }
@@ -162,6 +190,7 @@ public class PlayerMovement : MonoBehaviour
 
     private void OnTriggerExit2D(Collider2D col)
     {
+        //Check Bounds
         if (col.gameObject.layer == 9)
         {
             ResetPlayer();
