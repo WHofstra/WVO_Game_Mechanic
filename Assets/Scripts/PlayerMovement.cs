@@ -20,6 +20,11 @@ public class PlayerMovement : MonoBehaviour
     private bool[] jumping = new bool[2];
     private bool[] touchingWall = new bool[2];
 
+    public float Hor { get { return hor; } set { hor = value; } }
+    public float Ver { get { return rb.velocity.y; }}
+    public int Jumps { get { return jumps; } set { jumps = value; } }
+    public bool Jumping { get { return jumping[0]; } set { jumping[0] = value; } }
+
     private void Start()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -56,7 +61,8 @@ public class PlayerMovement : MonoBehaviour
     private void KeyInputsVelocity()
     {
         //Jump-key
-        if ((Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.W)) && (jumps > 0))
+        if (((Input.GetKeyDown(KeyCode.Space) && !Input.GetKey(KeyCode.W)) || 
+             (Input.GetKeyDown(KeyCode.W) && !Input.GetKey(KeyCode.Space))) && (jumps > 0))
         {
             rb.velocity += new Vector2(0.0f, JUMPING_HEIGHT);
             jumps--;

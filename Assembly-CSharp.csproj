@@ -63,6 +63,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\Scripts\AnimationTriggers.cs" />
     <Compile Include="Assets\Scripts\PlayerMovement.cs" />
     <Reference Include="Unity.Timeline.Editor">
       <HintPath>F:/Media College/WVO/Uitvoering/Unity/WVO_Game_Mechanic/Library/ScriptAssemblies/Unity.Timeline.Editor.dll</HintPath>
