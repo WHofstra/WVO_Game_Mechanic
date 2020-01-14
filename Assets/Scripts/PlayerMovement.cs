@@ -118,8 +118,6 @@ public class PlayerMovement : MonoBehaviour
         }
         else
         {
-            Debug.Log("{" + touchingWall[0] + ", " + touchingWall[1] + "}");
-
             //If the Right-side of a Wall is Touched
             if (touchingWall[0] && !touchingWall[1])
             {
