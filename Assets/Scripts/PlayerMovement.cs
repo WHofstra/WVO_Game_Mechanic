@@ -118,8 +118,7 @@ public class PlayerMovement : MonoBehaviour
         }
         else
         {
-            touchingWall[0] = false;
-            touchingWall[1] = false;
+            Debug.Log("{" + touchingWall[0] + ", " + touchingWall[1] + "}");
 
             //If the Right-side of a Wall is Touched
             if (touchingWall[0] && !touchingWall[1])
@@ -134,7 +133,7 @@ public class PlayerMovement : MonoBehaviour
                 }
                 else
                 {
-                    rb.velocity = new Vector2(0.0f, ver) * SPEED - new Vector2(0.0f, rb.gravityScale);
+                    rb.velocity = new Vector2(0.5f, ver) * SPEED - new Vector2(0.0f, rb.gravityScale);
                 }
             }
             //If the Left-side of a Wall is Touched
@@ -150,7 +149,7 @@ public class PlayerMovement : MonoBehaviour
                 }
                 else
                 {
-                    rb.velocity = new Vector2(0.0f, ver) * SPEED - new Vector2(0.0f, rb.gravityScale);
+                    rb.velocity = new Vector2(-0.5f, ver) * SPEED - new Vector2(0.0f, rb.gravityScale);
                 }
             }
         }
